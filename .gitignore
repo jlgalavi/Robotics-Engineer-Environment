@@ -1,0 +1,26 @@
+# Backups and preserved configurations
+backups/
+*.backup
+*.bak
+*.previous.*
+
+# Temporary files, logs and caches
+*.tmp
+*.temp
+*.log
+*.swp
+*~
+.cache/
+__pycache__/
+.pytest_cache/
+
+# Secrets and local overrides
+.env
+.env.*
+!.env.example
+*credentials*
+*secrets*
+profiles/*.local.yaml
+ssh/profiles.yaml
+
+.DS_Store
