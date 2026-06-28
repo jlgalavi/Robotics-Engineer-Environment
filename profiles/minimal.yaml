@@ -1,2 +1,5 @@
-# Minimal profile; schema not yet defined.
 name: minimal
+description: Shell essentials and Git integration.
+components:
+  - bash
+  - git

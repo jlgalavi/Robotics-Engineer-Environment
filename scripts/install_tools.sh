@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
-# Placeholder: automatic tool installation will be defined later.
-echo "Tool installation is not implemented yet."
+set -euo pipefail
+ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)"
+exec "$ROOT_DIR/rde" install --components git,fzf "$@"

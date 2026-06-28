@@ -1,0 +1,8 @@
+name: full
+description: Complete shell and terminal environment.
+components:
+  - bash
+  - git
+  - fzf
+  - wezterm
+  - fonts

@@ -1,2 +1,6 @@
-# General profile; schema not yet defined.
 name: default
+description: Recommended command-line development environment.
+components:
+  - bash
+  - git
+  - fzf

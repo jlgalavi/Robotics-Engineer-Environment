@@ -7,6 +7,10 @@ case $- in
     *) return ;;
 esac
 
+if [[ "${RDE_TRY_MODE:-false}" == "true" ]]; then
+    printf '\nRDE temporary environment: nothing will be installed. Run exit to leave.\n\n'
+fi
+
 # Resolve modules relative to this file instead of assuming an install path.
 _rde_bash_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 

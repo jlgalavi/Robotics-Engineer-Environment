@@ -1,0 +1,238 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+RDE_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+# shellcheck source=lib/rde/core.sh
+source "$RDE_ROOT/lib/rde/core.sh"
+# shellcheck source=lib/rde/components.sh
+source "$RDE_ROOT/lib/rde/components.sh"
+
+usage() {
+  cat <<'EOF'
+Usage: rde [command] [options]
+
+Commands:
+  try         Open a temporary Bash or WezTerm environment
+  install     Install or reconfigure selected components
+  update      Update the managed checkout to a stable release
+  uninstall   Remove selected components or the complete installation
+  status      Show installed version and components
+  doctor      Diagnose the installation
+  version     Show the RDE version
+
+Options:
+  --terminal NAME            bash or wezterm (for try)
+  --profile NAME             minimal, default, or full
+  --components LIST          comma-separated component list
+  --version TAG              target version for update (vMAJOR.MINOR.PATCH)
+  --yes                      accept ordinary confirmations
+  --purge-packages           remove packages installed by RDE
+  --restore                  restore compatible configuration backups
+  --all                      uninstall every active component
+  --help                     show this help
+EOF
+}
+
+menu() {
+  rde_require_tty "The main menu requires an interactive terminal."
+  printf '\n%sRobotics Development Environment%s\n' "$RDE_BOLD" "$RDE_RESET"
+  printf '  1) Try without installing\n  2) Install or configure this terminal\n  3) Update\n  4) Status\n  5) Doctor\n  6) Uninstall\n  7) Exit\n'
+  read -r -p "Choose [1-7]: " choice
+  case "$choice" in
+    1) command_try ;;
+    2) command_install ;;
+    3) command_update ;;
+    4) command_status ;;
+    5) command_doctor ;;
+    6) command_uninstall ;;
+    7) return 0 ;;
+    *) rde_die "Invalid choice." 2 ;;
+  esac
+}
+
+command_try() {
+  local terminal=${RDE_TRY_TERMINAL:-}
+  if [[ -z "$terminal" ]]; then
+    rde_require_tty "try without --terminal requires an interactive terminal."
+    printf 'Temporary environment: 1) WezTerm window  2) Bash in this terminal\n'
+    local choice; read -r -p "Choose [1-2]: " choice
+    case "$choice" in 1) terminal=wezterm;; 2) terminal=bash;; *) rde_die "Invalid choice." 2;; esac
+  fi
+  case "$terminal" in
+    bash)
+      rde_info "Opening temporary RDE Bash. Run 'exit' to return; no configuration will be installed."
+      exec env RDE_TRY_MODE=true RDE_SKIP_LOCAL_CONFIG=true bash --noprofile --rcfile "$RDE_ROOT/bash/bashrc" -i
+      ;;
+    wezterm)
+      command -v wezterm >/dev/null 2>&1 || rde_die "WezTerm is not installed. Use 'rde install --components wezterm' for the real installation." 1
+      wezterm --config-file "$RDE_ROOT/wezterm/wezterm.lua" show-keys --lua >/dev/null 2>&1 || rde_die "The repository WezTerm configuration is invalid." 1
+      rde_info "Opening a temporary RDE WezTerm window. Closing it leaves your configuration unchanged."
+      exec wezterm --config-file "$RDE_ROOT/wezterm/wezterm.lua" start --always-new-process --cwd "$PWD" -- env RDE_TRY_MODE=true RDE_SKIP_LOCAL_CONFIG=true bash --noprofile --rcfile "$RDE_ROOT/bash/bashrc" -i
+      ;;
+    *) rde_die "Unknown terminal for try: $terminal (expected bash or wezterm)." 2 ;;
+  esac
+}
+
+command_install() {
+  local selected profile="${RDE_PROFILE:-}" components="${RDE_COMPONENTS:-}" newly_active=""
+  rde_platform_check
+  if [[ -z "$profile" && -z "$components" ]]; then
+    rde_require_tty "install without --profile or --components requires a terminal."
+    profile=$(rde_choose_profile)
+  fi
+  if [[ -n "$components" ]]; then
+    selected=$(rde_normalize_components "$components") || return
+  else
+    selected=$(rde_profile_components "$profile") || return
+  fi
+  if rde_is_tty && [[ -z "$components" ]]; then
+    selected=$(rde_edit_components "$selected") || return
+  fi
+  [[ -n "$selected" ]] || rde_die "No components selected." 2
+  rde_print_install_plan "$selected"
+  rde_confirm "Apply this plan?" || { rde_info "Cancelled."; return 0; }
+  rde_prepare_state
+  rde_backup_start
+  rde_state_set last_result in_progress
+  local component
+  for component in ${selected//,/ }; do
+    local was_active=false
+    rde_component_active "$component" && was_active=true
+    if ! "component_${component}_install"; then
+      rde_state_set last_result "failed:${component}"
+      rde_error "Installation stopped at component: $component"
+      rde_rollback_new_components "$newly_active"
+      rde_error "Fix the problem and repeat the same install command."
+      return 1
+    fi
+    rde_component_activate "$component"
+    [[ "$was_active" == true ]] || newly_active="$component ${newly_active}"
+  done
+  rde_state_set version "$(rde_current_version)"
+  rde_state_set channel stable
+  rde_state_set root "$RDE_ROOT"
+  rde_state_set last_result success
+  rde_install_launcher
+  rde_ok "Installation completed."
+  command_doctor
+}
+
+command_update() {
+  rde_prepare_state
+  local managed_root target current
+  managed_root=$(rde_state_get root)
+  [[ -n "$managed_root" && -d "$managed_root/.git" ]] || rde_die "No managed Git checkout was found. Run install.sh first." 1
+  [[ "$(cd "$managed_root" && git status --porcelain)" == "" ]] || {
+    rde_error "The managed checkout has local changes:"
+    (cd "$managed_root" && git status --short)
+    return 1
+  }
+  current=$(rde_state_get version)
+  target=${RDE_TARGET_VERSION:-$(rde_latest_release "$managed_root")} || return
+  rde_validate_version "$target" || rde_die "Invalid release tag: $target" 2
+  rde_info "Update plan: ${current:-unknown} -> $target"
+  if [[ "$current" == "$target" ]]; then rde_ok "RDE is already up to date."; return 0; fi
+  rde_confirm "Update to $target?" || { rde_info "Cancelled."; return 0; }
+  git -C "$managed_root" fetch --tags --force origin || return
+  git -C "$managed_root" checkout --detach "$target" || return
+  rde_state_set version "$target"
+  local active component
+  active=$(rde_state_get components)
+  for component in ${active//,/ }; do "component_${component}_update" || return; done
+  rde_state_set last_result success
+  "$managed_root/rde" doctor
+}
+
+command_uninstall() {
+  rde_prepare_state
+  local selected active component
+  active=$(rde_state_get components)
+  if [[ -z "$active" ]]; then
+    rde_info "No active components."
+    [[ "$RDE_PURGE_PACKAGES" == true ]] && rde_purge_recorded_packages
+    [[ "$RDE_UNINSTALL_ALL" == true ]] && rde_remove_managed_installation
+    return 0
+  fi
+  if [[ -n "${RDE_COMPONENTS:-}" ]]; then
+    selected=$(rde_normalize_components "$RDE_COMPONENTS") || return
+  elif [[ "${RDE_UNINSTALL_ALL:-false}" == true ]]; then
+    selected=$active
+  else
+    rde_require_tty "uninstall requires --components or --all without a terminal."
+    selected=$(rde_edit_components "$active") || return
+  fi
+  rde_print_uninstall_plan "$selected"
+  rde_confirm "Remove these components?" || { rde_info "Cancelled."; return 0; }
+  for component in ${selected//,/ }; do
+    if rde_component_active "$component"; then
+      "component_${component}_uninstall" || return
+      rde_component_deactivate "$component"
+    fi
+  done
+  if [[ "${RDE_PURGE_PACKAGES:-false}" == true ]]; then rde_purge_recorded_packages; fi
+  rde_state_set last_result success
+  if [[ -z "$(rde_state_get components)" ]]; then
+    rde_info "All components removed. Backups were preserved in $RDE_BACKUP_ROOT."
+  fi
+  rde_ok "Uninstall completed."
+  if [[ "$RDE_UNINSTALL_ALL" == true && -z "$(rde_state_get components)" ]]; then
+    rde_remove_managed_installation
+  fi
+}
+
+command_status() {
+  rde_prepare_state
+  printf 'RDE version:    %s\n' "$(rde_state_get version || true)"
+  printf 'Channel:        %s\n' "$(rde_state_get channel || true)"
+  printf 'Root:           %s\n' "$(rde_state_get root || true)"
+  printf 'Components:     %s\n' "$(rde_state_get components || true)"
+  printf 'Last result:    %s\n' "$(rde_state_get last_result || true)"
+  printf 'Last backup:    %s\n' "$(rde_state_get last_backup || true)"
+}
+
+command_doctor() {
+  rde_prepare_state
+  local failed=0 active component
+  active=$(rde_state_get components)
+  [[ -n "$active" ]] || { rde_warn "No components are active."; return 1; }
+  for component in ${active//,/ }; do
+    "component_${component}_doctor" || failed=1
+  done
+  [[ $failed -eq 0 ]] && rde_ok "All active components passed diagnostics."
+  return "$failed"
+}
+
+command_version() { rde_current_version; }
+
+RDE_PROFILE="" RDE_COMPONENTS="" RDE_TARGET_VERSION="" RDE_TRY_TERMINAL="" RDE_ASSUME_YES=false
+RDE_PURGE_PACKAGES=false RDE_RESTORE=false RDE_UNINSTALL_ALL=false
+command=${1:-}
+if [[ "$command" == --help || "$command" == -h ]]; then usage; exit 0; fi
+[[ $# -gt 0 ]] && shift
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --profile) [[ $# -gt 1 ]] || rde_die "--profile needs a value" 2; RDE_PROFILE=$2; shift 2 ;;
+    --terminal) [[ $# -gt 1 ]] || rde_die "--terminal needs a value" 2; RDE_TRY_TERMINAL=$2; shift 2 ;;
+    --components) [[ $# -gt 1 ]] || rde_die "--components needs a value" 2; RDE_COMPONENTS=$2; shift 2 ;;
+    --version) [[ $# -gt 1 ]] || rde_die "--version needs a value" 2; RDE_TARGET_VERSION=$2; shift 2 ;;
+    --yes) RDE_ASSUME_YES=true; shift ;;
+    --purge-packages) RDE_PURGE_PACKAGES=true; shift ;;
+    --restore) RDE_RESTORE=true; shift ;;
+    --all) RDE_UNINSTALL_ALL=true; shift ;;
+    --help|-h) usage; exit 0 ;;
+    *) rde_die "Unknown option: $1" 2 ;;
+  esac
+done
+
+case "$command" in
+  "") menu ;;
+  try) command_try ;;
+  install) command_install ;;
+  update) command_update ;;
+  uninstall) command_uninstall ;;
+  status) command_status ;;
+  doctor) command_doctor ;;
+  version) command_version ;;
+  help) usage ;;
+  *) usage >&2; rde_die "Unknown command: $command" 2 ;;
+esac

@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  shell:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install checks
+        run: sudo apt-get update && sudo apt-get install -y shellcheck ripgrep
+      - name: Bash syntax
+        run: bash -n rde install.sh uninstall.sh lib/rde/*.sh scripts/*.sh tests/*.sh
+      - name: ShellCheck
+        run: shellcheck -x rde install.sh uninstall.sh tests/*.sh
+      - name: Installer tests
+        run: bash tests/test-rde.sh
+      - name: Public safety
+        run: bash scripts/check-public-safety.sh

@@ -4,7 +4,7 @@
 
 LOCAL_CONFIG="${HOME}/.rde.local"
 
-if [[ -r "$LOCAL_CONFIG" ]]; then
+if [[ "${RDE_SKIP_LOCAL_CONFIG:-false}" != "true" && -r "$LOCAL_CONFIG" ]]; then
     source "$LOCAL_CONFIG"
 fi
 

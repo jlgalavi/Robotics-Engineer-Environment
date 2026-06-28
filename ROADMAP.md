@@ -18,16 +18,16 @@ Status labels:
 | Local customization | **Ready** | `~/.rde.local` loads last; a sanitized example is provided | Document more optional recipes as real use cases emerge |
 | Public-safety checks | **Ready** | Heuristic scan for personal paths, emails, credentials, SSH hosts, and IP addresses | Add automated CI execution |
 | WezTerm | **In progress** | Modular appearance, themes, font selection, panes, tabs, and key bindings | Portability testing, optional backgrounds, and documented customization |
-| Installation | **In progress** | Existing configuration backup, WezTerm linking, health check, and conservative uninstall | Make the workflow clearer, more testable, and explicitly opt-in per component |
+| Installation | **Ready** | Interactive and scriptable component manager, stable-release updates, state, backups, diagnostics, and conservative uninstall on Ubuntu 24.04 | Publish the first stable tag, then broaden platform testing and release automation |
 | ROS 2 Bash support | **In progress** | Configurable Jazzy sourcing, workspace sourcing, colcon build helpers, and inspection aliases | Implement the standalone files under `ros2/` and add workspace/launch/topic workflows |
 | Git integration | **In progress** | Bash aliases and prompt branch detection | Define the standalone `git/` integration without identity or credential settings |
 | Context engine | **Planned** | Directory structure and detector entrypoints only | Implement detection, a stable output contract, and tests |
 | Docker integration | **Planned** | Directory structure only | Define safe aliases and container workflows |
 | SSH integration | **Planned** | Sanitized empty profile example only | Define profile schema and helpers without storing hosts or credentials |
-| Profiles | **Planned** | Initial YAML placeholders | Define schema, validation, and profile activation |
+| Profiles | **Ready** | Validated minimal YAML presets for minimal, default, and full installations | Add profiles only as supported components expand |
 | Smart status bar | **Planned** | No implementation | Consume context-engine output without duplicating detection |
 | Automatic layouts | **Planned** | No implementation | Design optional layouts for builds, launches, topics, and logs |
-| Automated tests and CI | **Planned** | Manual syntax and clean-shell checks | Add repeatable tests, ShellCheck, and public-safety checks in CI |
+| Automated tests and CI | **Ready** | Isolated installer lifecycle tests, Bash syntax, ShellCheck, and public-safety checks run in CI | Expand fixtures as components and supported platforms grow |
 
 ## Milestones
 
