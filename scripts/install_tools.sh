@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-# Placeholder: la instalación automática de herramientas se definirá más adelante.
-echo "Instalación de herramientas aún no implementada."
+# Placeholder: automatic tool installation will be defined later.
+echo "Tool installation is not implemented yet."

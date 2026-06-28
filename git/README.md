@@ -1,3 +1,3 @@
 # Git
 
-Espacio reservado para aliases y configuración Git no sensible.
+Reserved for non-sensitive Git aliases and configuration.

@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-# Placeholder: detector ROS aún no implementado.
+# Placeholder: ROS detection is not implemented yet.

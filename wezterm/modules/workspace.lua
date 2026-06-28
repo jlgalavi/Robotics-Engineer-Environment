@@ -1,6 +1,6 @@
 local M = {}
 
--- Punto de entrada para selectores y eventos relacionados con workspaces.
+-- Entry point for workspace selectors and events.
 function M.apply(_config)
 end
 

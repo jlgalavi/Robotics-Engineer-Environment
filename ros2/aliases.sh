@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-# Placeholder para aliases ROS 2.
+# Placeholder for ROS 2 aliases.

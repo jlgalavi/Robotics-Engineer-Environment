@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-# Placeholder para herramientas de topics.
+# Placeholder for topic tools.

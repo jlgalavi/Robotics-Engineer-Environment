@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-# Placeholder para aliases Git.
+# Placeholder for Git aliases.

@@ -1,6 +1,6 @@
 local M = {}
 
--- Punto de entrada para dominios, variables de entorno y lanzadores de ROS.
+-- Entry point for ROS domains, environment variables, and launchers.
 function M.apply(_config)
 end
 

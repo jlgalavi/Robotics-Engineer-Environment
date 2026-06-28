@@ -1,3 +1,3 @@
 # Context Engine
 
-Espacio reservado para la futura fuente de verdad del entorno. Los detectores aún no implementan lógica.
+Reserved for the environment's future source of truth. The detectors do not implement any logic yet.

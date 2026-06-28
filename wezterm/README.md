@@ -1,3 +1,3 @@
 # WezTerm
 
-Configuración visual activa. Los archivos Lua se copiaron sin modificaciones desde la configuración original.
+Active visual configuration. The Lua files are organized into small, focused modules.

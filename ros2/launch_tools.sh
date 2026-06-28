@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-# Placeholder para herramientas de launch.
+# Placeholder for launch tools.

@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-# Placeholder: detector Git aún no implementado.
+# Placeholder: Git detection is not implemented yet.

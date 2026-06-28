@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-# Placeholder: la instalación automática de fuentes se definirá más adelante.
-echo "Instalación de fuentes aún no implementada."
+# Placeholder: automatic font installation will be defined later.
+echo "Font installation is not implemented yet."

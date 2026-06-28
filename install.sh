@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 if [[ "$PWD" != "$ROOT_DIR" ]]; then
-  echo "Error: ejecuta este script desde la raíz del proyecto: $ROOT_DIR" >&2
+  echo "Error: run this script from the project root: $ROOT_DIR" >&2
   exit 1
 fi
 
@@ -12,9 +12,9 @@ fi
 
 cat <<'EOF'
 
-Instalación provisional completada.
-Próximos pasos:
-  1. Ejecuta ./scripts/healthcheck.sh
-  2. Reinicia WezTerm y revisa su configuración
-  3. Revisa bash/bashrc manualmente; tu ~/.bashrc no ha sido modificado
+Provisional installation completed.
+Next steps:
+  1. Run ./scripts/healthcheck.sh
+  2. Restart WezTerm and review its configuration
+  3. Review bash/bashrc manually; your ~/.bashrc was not modified
 EOF

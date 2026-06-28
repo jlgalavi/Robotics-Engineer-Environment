@@ -1,3 +1,3 @@
 # WezTerm
 
-La configuración de `wezterm/` procede de `~/.config/wezterm`. Se enlaza completa para mantener módulos, temas, fondos y fuentes bajo control de versiones.
+The `wezterm/` configuration is designed to be linked as a whole so modules, themes, backgrounds, and font settings remain under version control.

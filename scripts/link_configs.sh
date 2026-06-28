@@ -8,21 +8,21 @@ STATE_DIR="$HOME/.config/robotics-dev-environment"
 
 mkdir -p "$HOME/.config"
 if [[ ! -s "$STATE_DIR/last_backup" ]]; then
-  echo "Error: no hay constancia de un backup. Ejecuta scripts/backup_existing.sh primero." >&2
+  echo "Error: no backup record was found. Run scripts/backup_existing.sh first." >&2
   exit 1
 fi
 
 if [[ -L "$TARGET" && "$(readlink -f -- "$TARGET")" == "$(readlink -f -- "$SOURCE")" ]]; then
-  echo "WezTerm ya apunta a $SOURCE"
+  echo "WezTerm already points to $SOURCE"
 elif [[ -e "$TARGET" || -L "$TARGET" ]]; then
   previous="$TARGET.previous.$(date +%Y%m%d-%H%M%S)"
   mv -- "$TARGET" "$previous"
   ln -s "$SOURCE" "$TARGET"
-  echo "Configuración anterior conservada en: $previous"
-  echo "Enlace creado: $TARGET -> $SOURCE"
+  echo "Previous configuration preserved at: $previous"
+  echo "Link created: $TARGET -> $SOURCE"
 else
   ln -s "$SOURCE" "$TARGET"
-  echo "Enlace creado: $TARGET -> $SOURCE"
+  echo "Link created: $TARGET -> $SOURCE"
 fi
 
-echo "~/.bashrc no se ha modificado. Compara bash/bashrc y modularízalo manualmente cuando estés listo."
+echo "~/.bashrc was not modified. Test bash/bashrc and opt in manually when ready."

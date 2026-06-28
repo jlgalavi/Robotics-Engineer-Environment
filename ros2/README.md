@@ -1,3 +1,3 @@
 # ROS 2
 
-Espacio reservado para helpers revisados de ROS 2 Jazzy.
+Reserved for reviewed ROS 2 Jazzy helpers.

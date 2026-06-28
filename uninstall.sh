@@ -6,8 +6,8 @@ TARGET="$HOME/.config/wezterm"
 
 if [[ -L "$TARGET" && "$(readlink -f -- "$TARGET")" == "$(readlink -f -- "$ROOT_DIR/wezterm")" ]]; then
   unlink "$TARGET"
-  echo "Enlace $TARGET eliminado. Los backups no se han tocado."
-  echo "Restaura manualmente la copia deseada desde ~/.config/robotics-dev-environment/backups/."
+  echo "Link $TARGET removed. Backups were left untouched."
+  echo "Restore the desired copy manually from ~/.config/robotics-dev-environment/backups/."
 else
-  echo "No se ha modificado $TARGET: no es el enlace gestionado por este proyecto."
+  echo "$TARGET was not modified because it is not the link managed by this project."
 fi

@@ -31,7 +31,7 @@ function M.selector()
   end
 
   return act.InputSelector {
-    title = 'Seleccionar fuente',
+    title = 'Select font',
     fuzzy = true,
     choices = choices,
     action = wezterm.action_callback(function(window, _pane, id, _label)
@@ -42,7 +42,7 @@ function M.selector()
       local overrides = window:get_config_overrides() or {}
       overrides.font = font_stack(id)
       window:set_config_overrides(overrides)
-      window:toast_notification('WezTerm', 'Fuente: ' .. id, nil, 2500)
+      window:toast_notification('WezTerm', 'Font: ' .. id, nil, 2500)
     end),
   }
 end

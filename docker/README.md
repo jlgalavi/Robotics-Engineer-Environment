@@ -1,3 +1,3 @@
 # Docker
 
-Espacio reservado para aliases y helpers conservadores.
+Reserved for conservative Docker aliases and helpers.

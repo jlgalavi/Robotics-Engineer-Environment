@@ -15,12 +15,28 @@ __pycache__/
 .pytest_cache/
 
 # Secrets and local overrides
+.rde.local
+*.local
+*.secret
+*.key
+*.pem
+*.pub
 .env
 .env.*
-!.env.example
 *credentials*
 *secrets*
+credentials*
+secrets*
+id_rsa*
+id_ed25519*
+known_hosts
+config.local
 profiles/*.local.yaml
 ssh/profiles.yaml
+
+# Sanitized documentation and sample configuration remain publishable.
+!*.example
+!*.template
+!.env.example
 
 .DS_Store

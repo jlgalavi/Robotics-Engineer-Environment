@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-# Placeholder: detector Docker aún no implementado.
+# Placeholder: Docker detection is not implemented yet.

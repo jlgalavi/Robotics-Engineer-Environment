@@ -1,0 +1,14 @@
+# Example local customization for the Robotics Development Environment.
+# Copy this file to ~/.rde.local and keep that personal file out of Git.
+
+# Prompt settings.
+export RDE_PROMPT_USER="robotics"
+export RDE_PROMPT_SHOW_HOST=false
+export RDE_PROMPT_SHOW_GIT=true
+
+# ROS 2 distribution used by srcros; ROS is still never sourced automatically.
+export RDE_ROS_DISTRO="jazzy"
+
+# Generic personal aliases and workspace shortcuts.
+alias ws='cd ~/dev/robotics_ws'
+alias sim='cd ~/dev/simulation_ws'

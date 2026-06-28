@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-# Placeholder: detector Python aún no implementado.
+# Placeholder: Python detection is not implemented yet.
