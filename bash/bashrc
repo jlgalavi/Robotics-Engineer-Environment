@@ -1,4 +1,4 @@
-# Modular Bash entrypoint for the Robotics Development Environment.
+# Modular Bash entrypoint for the Robotics Engineer Environment.
 # Source this file from any repository location; it does not modify ~/.bashrc.
 
 # Shell customizations only make sense in an interactive Bash session.

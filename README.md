@@ -1,6 +1,8 @@
-# Robotics Development Environment
+# Robotics Engineer Environment
 
 Modular, version-controlled terminal environment for robotics development with WezTerm, Bash, and ROS 2.
+
+Repository: <https://github.com/jlgalavi/Robotics-Engineer-Environment>
 
 ## Purpose
 
@@ -27,7 +29,8 @@ matrix, current limitations, and upcoming milestones.
 ## Provisional installation
 
 ```bash
-cd ~/dev/robotics-dev-environment
+git clone https://github.com/jlgalavi/Robotics-Engineer-Environment.git
+cd Robotics-Engineer-Environment
 ./install.sh
 ./scripts/healthcheck.sh
 ```
@@ -54,5 +57,8 @@ tests, and small implementations from the roadmap. Please read
 [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request. It explains
 the fork-based contribution workflow, project scope, safety rules, validation
 steps, and how contributors are recognized.
+
+Please review [SECURITY.md](SECURITY.md) before sharing logs, screenshots, or
+environment details.
 
 > **Warning:** This project is experimental. Review scripts and backups before using it on a production machine.
