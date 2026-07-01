@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+# Read-only context report for the Robotics Engineer Environment.
+
+set -uo pipefail
+
+RDE_CONTEXT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+
+for detector in ros2.sh workspace.sh git.sh; do
+    # shellcheck disable=SC1090
+    source "$RDE_CONTEXT_DIR/detectors/$detector"
+done
+
+__rde_context_shell_quote() {
+    local value=${1-}
+    value=${value//\'/\'\\\'\'}
+    printf "'%s'" "$value"
+}
+
+__rde_context_print_shell_var() {
+    printf '%s=' "$1"
+    __rde_context_shell_quote "${2-}"
+    printf '\n'
+}
+
+__rde_context_print_human() {
+    printf '%s\n\n' 'RDE context'
+    printf '%s\n' 'ROS 2:'
+    printf '  %-20s %s\n' 'configured distro:' "$RDE_ROS_CONFIGURED_DISTRO"
+    printf '  %-20s %s\n' 'active distro:' "$RDE_ROS_ACTIVE_DISTRO"
+    printf '  %-20s %s\n' 'ros2 command:' "$RDE_ROS_COMMAND_AVAILABLE"
+    printf '  %-20s %s\n' 'sourced:' "$RDE_ROS_SOURCED"
+    printf '  %-20s %s\n' 'install path:' "$RDE_ROS_INSTALL_PATH"
+    printf '  %-20s %s\n\n' 'domain id:' "$RDE_ROS_DOMAIN_ID"
+
+    printf '%s\n' 'Workspace:'
+    printf '  %-20s %s\n' 'detected:' "$RDE_WS_DETECTED"
+    printf '  %-20s %s\n' 'name:' "$RDE_WS_NAME"
+    printf '  %-20s %s\n' 'root:' "$RDE_WS_ROOT"
+    printf '  %-20s %s\n' 'built:' "$RDE_WS_BUILT"
+    printf '  %-20s %s\n\n' 'sourced:' "$RDE_WS_SOURCED"
+
+    printf '%s\n' 'Git:'
+    printf '  %-20s %s\n' 'detected:' "$RDE_GIT_DETECTED"
+    printf '  %-20s %s\n' 'root:' "$RDE_GIT_ROOT"
+    printf '  %-20s %s\n' 'branch:' "$RDE_GIT_BRANCH"
+    printf '  %-20s %s\n' 'dirty:' "$RDE_GIT_DIRTY"
+}
+
+__rde_context_print_shell() {
+    __rde_context_print_shell_var RDE_ROS_CONFIGURED_DISTRO "$RDE_ROS_CONFIGURED_DISTRO"
+    __rde_context_print_shell_var RDE_ROS_ACTIVE_DISTRO "$RDE_ROS_ACTIVE_DISTRO"
+    __rde_context_print_shell_var RDE_ROS_COMMAND_AVAILABLE "$RDE_ROS_COMMAND_AVAILABLE"
+    __rde_context_print_shell_var RDE_ROS_SOURCED "$RDE_ROS_SOURCED"
+    __rde_context_print_shell_var RDE_ROS_INSTALL_PATH "$RDE_ROS_INSTALL_PATH"
+    __rde_context_print_shell_var RDE_ROS_DOMAIN_ID "$RDE_ROS_DOMAIN_ID"
+    __rde_context_print_shell_var RDE_WS_DETECTED "$RDE_WS_DETECTED"
+    __rde_context_print_shell_var RDE_WS_NAME "$RDE_WS_NAME"
+    __rde_context_print_shell_var RDE_WS_ROOT "$RDE_WS_ROOT"
+    __rde_context_print_shell_var RDE_WS_BUILT "$RDE_WS_BUILT"
+    __rde_context_print_shell_var RDE_WS_SOURCED "$RDE_WS_SOURCED"
+    __rde_context_print_shell_var RDE_GIT_DETECTED "$RDE_GIT_DETECTED"
+    __rde_context_print_shell_var RDE_GIT_ROOT "$RDE_GIT_ROOT"
+    __rde_context_print_shell_var RDE_GIT_BRANCH "$RDE_GIT_BRANCH"
+    __rde_context_print_shell_var RDE_GIT_DIRTY "$RDE_GIT_DIRTY"
+}
+
+format=human
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --format)
+            if [[ $# -lt 2 ]]; then
+                printf 'Missing value for --format.\n' >&2
+                exit 2
+            fi
+            format=$2
+            shift 2
+            ;;
+        *)
+            printf 'Unknown argument: %s\n' "$1" >&2
+            exit 2
+            ;;
+    esac
+done
+
+case "$format" in
+    human|shell) ;;
+    *)
+        printf 'Unsupported format: %s (expected human or shell)\n' "$format" >&2
+        exit 2
+        ;;
+esac
+
+__rde_context_detect_ros2
+__rde_context_detect_workspace
+__rde_context_detect_git
+
+case "$format" in
+    human) __rde_context_print_human ;;
+    shell) __rde_context_print_shell ;;
+esac
